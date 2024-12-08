@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Research Report | AutoDoc{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Topic Section -->
+  <h1 class="mb-4 text-center">
+    Research Report on: <span class="text-primary">{{ args.description if args.mode == 'passive' else args.repo_url }}</span>
+  </h1>
+
+  <!-- Results Section -->
+  <div id="result" class="mt-5">
+    <!-- Loading spinner -->
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    // Show error alert when something goes wrong
+    function invalidAlert(error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops! Something went wrong!",
+        text: error,
+        input: "url",
+        showDenyButton: true,
+        denyButtonText: "Back to home",
+        confirmButtonText: "Check again",
+        inputPlaceholder: "Enter the URL",
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location = `{{ url_for('process') }}?target=${result.value}`;
+        } else if (result.isDenied) {
+          window.location = "{{ url_for('home') }}";
+        }
+      });
+    }
+
+    // Fetch and display the results
+    $(function () {
+      $.ajax({
+        type: "POST",
+        url: "{{ url_for('process') }}",
+        contentType: "application/json",
+        data: JSON.stringify({
+          mode: "{{args.mode}}",
+          repo_url: "{{args.repo_url}}",
+          description: `{{args.description}}`,
+        }),
+        dataType: "json",
+        success: function (data, status) {
+          console.log("Data: " + JSON.stringify(data) + "\nStatus: " + status);
+
+          if (data.status) {
+            showResult(data.response);
+          } else {
+            showResult("");
+            // invalidAlert(data.message);
+          }
+        },
+      });
+
+      function showResult(result) {
+        $("#result").html(`
+          <div class="row g-4">
+            <!-- Topic Card -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title text-primary">Topic</h5>
+                  <p class="card-text">${result.topic}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Comparison Card -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title text-primary">Comparison of Papers</h5>
+                  <p class="card-text">${result.comparison}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Relevant Papers Card -->
+            <div class="col-12">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title text-primary">Relevant Papers</h5>
+                  <div class="row g-3">
+                    ${result.relevant_papers.map(paper => `
+                      <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 bg-light">
+                          <div class="card-body">
+                            <h6 class="card-title">${paper.title} <small class="text-muted">(${paper.year})</small></h6>
+                            <p class="card-text"><small>By: ${paper.author.join(', ')}</small></p>
+                            <p class="card-text">${paper.summary}</p>
+                          </div>
+                          <div class="card-footer bg-transparent border-0">
+                            <a href="https://scholar.google.com${paper.url}" class="btn btn-outline-primary btn-sm" target="_blank">Show Citation</a>
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insights and Future Research Card -->
+            <div class="col-12">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title text-primary">Insights and Future Research</h5>
+                  <p class="card-text">${result.insights}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+    });
+  </script>
+{% endblock %}

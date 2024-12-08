@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block title %}AutoDoc{% endblock %} {%
+block content %}
+<section class="container">
+  <div class="row align-items-center justify-content-center min-vh-100 py-4">
+    <div class="col-lg-10 my-4">
+      <div class="d-flex justify-content-center mb-3">
+        <figure class="text-center">
+          <blockquote class="blockquote">
+            <h1 class="fw-bold display-3">AutoDoc Generator</h1>
+          </blockquote>
+          <figcaption class="blockquote-footer text-end fs-5">
+            Developed by <cite title="Vishal Tyagi">Vishal Tyagi</cite>
+          </figcaption>
+        </figure>
+      </div>
+      <div class="row text-center">
+        <div class="col py-2">
+          <div class="card shadow-sm p-5 border border-dark border-2 bg-light">
+            <div class="font--inter mb-2">
+              <h2 class="fw-bold fs-1 font--inter mb-3">Active Mode</h2>
+              <p class="lead">In Active Mode, the system generates documentation using the content from the Git repository.</p>
+            </div>
+            <a href="{{ url_for('active') }}" class="btn btn-dark fs-5 py-3 px-5 mt-3">
+              Start Active Mode
+            </a>
+          </div>
+        </div>
+        <div class="col py-2">
+          <div class="card shadow-sm p-5 border border-dark border-2 bg-light">
+            <div class="font--inter mb-2">
+              <h2 class="fw-bold fs-1 font--inter mb-3">Passive Mode</h2>
+              <p class="lead">In Passive Mode, you can conduct research for the project you want to create documentation for.</p>
+            </div>
+              <a href="{{ url_for('passive') }}" class="btn btn-dark fs-5 py-3 px-5 mt-3">
+              Start Passive Mode
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
